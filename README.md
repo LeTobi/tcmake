@@ -17,7 +17,7 @@ Dateiformat:
 ```
 selection mylib
 lib libmyname.a
-add /
+add ./
 
 exe test.exe test.cpp
 link extern-library1
