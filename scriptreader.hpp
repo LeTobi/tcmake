@@ -34,6 +34,8 @@ bool getInstructions(Selection& selection) {
     {
         std::string instruction;
         file >> instruction;
+        if (instruction.empty())
+            continue;
         if (instruction=="selection")
         {
             selection.emplace_back();
@@ -70,7 +72,7 @@ bool getInstructions(Selection& selection) {
                 throw std::string("Ein link konnte nicht zugeordnet werden. (exe fehlt)");
             selection.back().exes.back().links.push_back(link);
         }
-        else if (!instruction.empty())
+        else
         {
             throw std::string("unbekannte Anweisung: ") + instruction;
         }
