@@ -27,6 +27,9 @@ typedef std::vector<Outputs> Selection;
 
 bool getInstructions(Selection& selection) {
     std::fstream file ("tcmakefile",std::fstream::in);
+    std::skipws(file);
+    if (!file.good())
+        throw std::string("es ist kein tcmakefile vorhanden");
     while (file.good())
     {
         std::string instruction;
@@ -67,7 +70,8 @@ bool getInstructions(Selection& selection) {
                 throw std::string("Ein link konnte nicht zugeordnet werden. (exe fehlt)");
             selection.back().exes.back().links.push_back(link);
         }
-        else {
+        else if (!instruction.empty())
+        {
             throw std::string("unbekannte Anweisung: ") + instruction;
         }
     }

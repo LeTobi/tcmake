@@ -6,6 +6,8 @@
 using namespace std;
 
 Outputs& select(Selection& selection) {
+    if (selection.empty())
+        throw std::string("es ist keine Auswahl definiert.");
     std::cout << "Folgende Konfigurationen stehen zur Auswahl:" << std::endl;
     for (auto& option: selection)
         std::cout << "  * " << option.name << std::endl;
