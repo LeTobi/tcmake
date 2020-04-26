@@ -54,43 +54,6 @@ namespace tobilib
             return what_str.c_str();
         };
     };
-
-    class Warning_list: public std::list<Exception>
-    {
-    public:
-        std::string toString() const
-        {
-            std::string out;
-            for (auto& err: *this)
-            {
-                out += err.what();
-                out += "\n";
-            }
-            return out;
-        }
-
-        void overtake(Warning_list& child, const std::string& trace="")
-        {
-            while (!child.empty())
-            {
-                Exception& e = child.front();
-                if (trace.size()>0)
-                    e.trace.push_back(trace);
-                push_back(e);
-                child.pop_front();
-            }
-        }
-
-        operator bool () const
-        {
-            return !empty();
-        }
-
-        operator std::string () const
-        {
-            return toString();
-        }
-    };
 }
 
 #endif

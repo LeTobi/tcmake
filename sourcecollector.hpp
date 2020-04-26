@@ -26,6 +26,8 @@ struct Component {
     tobilib::FileName out_o;
 
     std::set<Component*> depend;
+    // rekursive abhängigkeit
+    void r_depend(std::set<Component*>&);
 };
 
 class Structure {
@@ -50,6 +52,15 @@ private:
     void get_dependencies(Component&);
     void get_dependencies(Component& ,tobilib::FileName);
 };
+
+void Component::r_depend(std::set<Component*>& list) {
+    for(auto& dep: depend) {
+        if (list.count(dep)!=0)
+            continue;
+        list.insert(dep);
+        dep->r_depend(list);
+    }
+}
 
 void Structure::fill() {
     add_directory("./");

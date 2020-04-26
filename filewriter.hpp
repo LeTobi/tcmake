@@ -37,10 +37,7 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
     for (auto& comp: structure.components) {
         if (!comp.second.has_header)
             continue;
-        fs << comp.second.out_h << ": " << rootPath(comp.second.source_h) << " ";
-        for (auto& dep: comp.second.depend)
-            fs << dep->out_h << " ";
-        fs << std::endl;
+        fs << comp.second.out_h << ": " << rootPath(comp.second.source_h) << std::endl;
         tobilib::FileName mkpath;
         for (auto& dir: comp.second.out_h.path) {
             mkpath.path.push_back(dir);
@@ -56,10 +53,11 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
         fs << comp.second.out_o << ": ";
         fs << rootPath(comp.second.source_h) << " ";
         fs << rootPath(comp.second.source_cpp) << " ";
-        for (auto& dep: comp.second.depend) {
+
+        std::set<Component*> dependencies;
+        comp.second.r_depend(dependencies);
+        for (auto& dep: dependencies) {
             fs << rootPath(dep->source_h) << " ";
-            if (dep->has_code)
-                fs << rootPath(dep->source_cpp) << " ";
         }
         fs << std::endl;
         fs << "\tmkdir -p bin" << std::endl;
@@ -92,7 +90,10 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
             throw exe.source.fullName().toString() + " wurde nicht gefunden.";
         Component& comp = structure.components.at(structure.keyof(exe.source));
         fs << exe.output << ": " << rootPath(exe.source) << " ";
-        for (auto& dep: comp.depend)
+
+        std::set<Component*> dependencies;
+        comp.r_depend(dependencies);
+        for (auto& dep: dependencies)
             if (dep->has_lib)
                 fs << dep->out_o << " ";
             else
@@ -101,7 +102,7 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
         fs << "\tg++ -std=c++11 " << rootPath(exe.source) << " -o " << exe.output << " ";
         for (auto& link: exe.links)
             fs << "-l" << link << " ";
-        for (auto& dep: comp.depend)
+        for (auto& dep: dependencies)
             if (dep->has_lib)
                 fs << dep->out_o << " ";
         fs << std::endl;

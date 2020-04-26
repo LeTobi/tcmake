@@ -23,6 +23,7 @@ namespace tobilib
 		void assign (const char *);
 		void assign (const CharPlus&, int count = 1);
 		std::string toString () const;
+		bool isInt() const;
 		int toInt() const;
 		
 		int find(const StringPlus&, int start=0) const;
@@ -55,7 +56,8 @@ namespace tobilib
 		StringPlus& operator += (const std::string& val) {append(StringPlus(val));return *this;};
 		StringPlus& operator += (const char * val) {append(StringPlus(val));return *this;};
 		StringPlus& operator += (const CharPlus& val) {append(1,val); return *this;};
-		
+		friend std::istream& operator>>(std::istream&, StringPlus&);
+
 		bool operator == (const char* val) const {return *this==StringPlus(val);};
 		bool operator != (const char* val) const {return *this!=StringPlus(val);};
 		
