@@ -100,11 +100,11 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
                 fs << rootPath(dep->source_h) << " ";
         fs << std::endl;
         fs << "\tg++ -std=c++11 " << rootPath(exe.source) << " -o " << exe.output << " ";
-        for (auto& link: exe.links)
-            fs << "-l" << link << " ";
         for (auto& dep: dependencies)
             if (dep->has_lib)
                 fs << dep->out_o << " ";
+        for (auto& link: exe.links)
+            fs << "-l" << link << " ";
         fs << std::endl;
     }
 
