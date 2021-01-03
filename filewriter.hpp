@@ -71,7 +71,7 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
     for (auto& lib: outputs.libs) {
         fs << lib.output << ": ";
         for (auto& comp: structure.components)
-            if (lib_contains_comp(lib,comp.first) && comp.second.has_lib) {
+            if (lib_contains_comp(lib,comp.first) && comp.second.has_header) {
                 if (comp.second.has_code)
                     fs << comp.second.out_o << " ";
                 if (comp.second.has_header)
