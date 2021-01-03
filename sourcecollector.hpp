@@ -15,7 +15,7 @@
 struct Component {
     bool has_header = false;
     bool has_code = false;
-    bool has_lib = false;
+    bool has_lib = false; // has_header && has_code
 
     // source_x relativ zum Projektordner
     tobilib::FileName source_cpp;
