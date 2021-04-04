@@ -128,15 +128,21 @@ void Structure::get_dependencies(Component& comp, tobilib::FileName file) {
     try {
         filecontent = tobilib::StringPlus::fromFile(file);
     } catch (std::exception e) {
-        std::cout << "Warnung: (" << file.fullName() << ") " << e.what();
+        std::cout << "WARNUNG: (" << file.fullName() << ") " << e.what();
     }
     std::vector<int> includes = filecontent.find_all("#include");
     for (auto& include: includes) {
         int border1 = filecontent.find("\"",include);
         int border2 = filecontent.find("\"",border1+1);
         int endl = filecontent.find('\n',include);
-        if (border1==tobilib::StringPlus::npos || border2==tobilib::StringPlus::npos || border2>endl)
+        if (endl==tobilib::StringPlus::npos)
+            endl = filecontent.size();
+        if (border1==tobilib::StringPlus::npos || border1>endl)
             continue;
+        if (border2==tobilib::StringPlus::npos || border2>endl) {
+            std::cout << "WARNUNG: (" << file.fullName() << ") Include nicht abgeschlossen" << std::endl;
+            continue;
+        }
         tobilib::FileName depfile = file+filecontent.substr(border1+1,border2-border1-1);
         if (components.count(keyof(depfile)) == 0)
             continue;
