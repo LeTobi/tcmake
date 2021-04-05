@@ -48,14 +48,15 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
 
     // Objectdateien
     for (auto& comp: structure.components) {
-        if (!comp.second.has_lib)
+        if (!comp.second.has_code)
             continue;
         fs << comp.second.out_o << ": ";
-        fs << rootPath(comp.second.source_h) << " ";
+        if (comp.second.has_header)
+            fs << rootPath(comp.second.source_h) << " ";
         fs << rootPath(comp.second.source_cpp) << " ";
 
         std::set<Component*> dependencies;
-        comp.second.r_depend(dependencies);
+        comp.second.get_compile_dependencies(dependencies);
         for (auto& dep: dependencies) {
             fs << rootPath(dep->source_h) << " ";
         }
@@ -89,22 +90,20 @@ void writeMakeFile(Structure& structure, Outputs& outputs) {
         if (structure.components.count(structure.keyof(exe.source))==0)
             throw exe.source.fullName().toString() + " wurde nicht gefunden.";
         Component& comp = structure.components.at(structure.keyof(exe.source));
-        fs << exe.output << ": " << rootPath(exe.source) << " ";
+        fs << exe.output << ": " << comp.out_o;
 
         std::set<Component*> dependencies;
-        comp.r_depend(dependencies);
+        comp.get_linkage_dependencies(dependencies);
         for (auto& dep: dependencies)
             if (dep->has_lib)
-                fs << dep->out_o << " ";
-            else
-                fs << rootPath(dep->source_h) << " ";
+                fs << " " << dep->out_o;
         fs << std::endl;
-        fs << "\tg++ -std=c++11 " << rootPath(exe.source) << " -o " << exe.output << " ";
+        fs << "\tg++ -std=c++11 -o " << exe.output << " " << comp.out_o;
         for (auto& dep: dependencies)
             if (dep->has_lib)
-                fs << dep->out_o << " ";
+                fs << " " << dep->out_o;
         for (auto& link: exe.links)
-            fs << "-l" << link << " ";
+            fs << " -l" << link;
         fs << std::endl;
     }
 

@@ -25,9 +25,15 @@ struct Component {
     tobilib::FileName out_h;
     tobilib::FileName out_o;
 
-    std::set<Component*> depend;
+    std::set<Component*> depend_public; // Im h-file: relevant für andere .o komponenten
+    std::set<Component*> depend_private; // Im cpp-file: irrelelvant für andere .o komponenten
+
     // rekursive abhängigkeit
-    void r_depend(std::set<Component*>&);
+    void get_compile_dependencies(std::set<Component*>& output);
+    void get_linkage_dependencies(std::set<Component*>& output);
+
+private:
+    void recursive_gather(std::set<Component*>& output, bool include_private, bool is_first);
 };
 
 class Structure {
@@ -50,15 +56,35 @@ private:
     void add_directory(tobilib::StringPlus,bool* out_hasheader=nullptr);
     // get dependencies: Sucht die Abhängigkeiten im File-Code
     void get_dependencies(Component&);
-    void get_dependencies(Component& ,tobilib::FileName);
+    void get_dependencies(Component&, std::set<Component*>& ,tobilib::FileName);
 };
 
-void Component::r_depend(std::set<Component*>& list) {
-    for(auto& dep: depend) {
-        if (list.count(dep)!=0)
+void Component::get_compile_dependencies(std::set<Component*>& output)
+{
+    recursive_gather(output,false,true);
+}
+
+void Component::get_linkage_dependencies(std::set<Component*>& output)
+{
+    recursive_gather(output,true,true);
+}
+
+void Component::recursive_gather(std::set<Component*>& output, bool include_private, bool is_first) {
+    for(auto& dep: depend_public) {
+        if (output.count(dep)!=0)
             continue;
-        list.insert(dep);
-        dep->r_depend(list);
+        output.insert(dep);
+        dep->recursive_gather(output,include_private,false);
+    }
+
+    if (!is_first && !include_private)
+        return;
+
+    for (auto& dep: depend_private) {
+        if (output.count(dep)!=0)
+            continue;
+        output.insert(dep);
+        dep->recursive_gather(output,include_private,false);
     }
 }
 
@@ -118,12 +144,12 @@ void Structure::add_directory(tobilib::StringPlus path, bool* out_hasheader) {
 
 void Structure::get_dependencies(Component& comp) {
     if (comp.has_header)
-        get_dependencies(comp,comp.source_h);
+        get_dependencies(comp,comp.depend_public,comp.source_h);
     if (comp.has_code)
-        get_dependencies(comp,comp.source_cpp);
+        get_dependencies(comp,comp.depend_private,comp.source_cpp);
 }
 
-void Structure::get_dependencies(Component& comp, tobilib::FileName file) {
+void Structure::get_dependencies(Component& self, std::set<Component*>& list, tobilib::FileName file) {
     tobilib::StringPlus filecontent;
     try {
         filecontent = tobilib::StringPlus::fromFile(file);
@@ -147,8 +173,8 @@ void Structure::get_dependencies(Component& comp, tobilib::FileName file) {
         if (components.count(keyof(depfile)) == 0)
             continue;
         Component& dep = components.at(keyof(depfile));
-        if (&comp!=&dep)
-            comp.depend.insert(&dep);
+        if (&self!=&dep)
+            list.insert(&dep);
     }
 }
 
