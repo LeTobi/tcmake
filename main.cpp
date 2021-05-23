@@ -5,38 +5,59 @@
 
 using namespace std;
 
-Outputs& select(Selection& selection) {
-    if (selection.empty())
-        throw std::string("es ist keine Auswahl definiert.");
+void printinfo(Selection& selection) {
     std::cout << "Folgende Konfigurationen stehen zur Auswahl:" << std::endl;
+    if (selection.empty())
+        std::cout << "Es steht keine Auswahl zur verfuegung." << std::endl;
     for (auto& option: selection)
         std::cout << "  * " << option.name << std::endl;
-    std::cout << ">";
-    std::string choice;
-    while (true) {
-        std::cin >> choice;
-        for (auto& option: selection)
-            if (option.name==choice)
-                return option;
-        std::cout << " Existiert nicht" << std::endl << ">";
-    }
 }
 
-int main() {
+MakeOptions configureOutput(int argc, const char** args, Selection& selection) {
+    if (selection.empty())
+        throw std::string("Das tcmakefile definiert keine selection");
+    MakeOptions out;
+    for (auto& option: selection)
+        if (option.name == args[1])
+            out.outputs = &option;
+    if (out.outputs == nullptr)
+        throw std::string("Die Auswahl wurde nicht gefunden.");
+    for (int i=2;i<argc;i++)
+    {
+        std::string arg = args[i];
+        if (arg == "debug")
+            out.debug = true;
+        else
+            throw std::string("Unbekannte option: ")+args[i];
+    }
+    return out;
+}
+
+void generateOutput(int argc, const char** args, Selection& selection)
+{
+    Structure project;
+    project.fill();
+
+    MakeOptions out = configureOutput(argc,args,selection);
+    writeMakeFile(project,out);
+
+    std::cout << "Makefile erstellt mit:" << std::endl;
+    for (auto& exe: out.outputs->exes)
+        std::cout << "  " << exe.output << std::endl;
+    for (auto& lib: out.outputs->libs)
+        std::cout << "  " << lib.output << std::endl;
+}
+
+int main(int argc, const char** args) {
     try {
         Selection selection;
         getInstructions(selection);
-        Structure project;
-        project.fill();
         
-        Outputs& out = select(selection);
-        writeMakeFile(project,out);
-
-        std::cout << "Makefile erstellt mit:" << std::endl;
-        for (auto& exe: out.exes)
-            std::cout << "  " << exe.output << std::endl;
-        for (auto& lib: out.libs)
-            std::cout << "  " << lib.output << std::endl;
+        if (argc < 2)
+            printinfo(selection);
+        else
+            generateOutput(argc,args,selection);
+        
     } catch (std::string& msg) {
         cout << msg << std::endl;
     }

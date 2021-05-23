@@ -28,3 +28,14 @@ link extern-library2
 * ```add```: definiert einen Pfad, der der Bibliothek hinzugefügt werden soll
 * ```exe```: erzeugt eine Anwendung
 * ```link```: definiert zusätzliche Abhängigkeiten der Anwendung
+
+## Anwendung
+
+```tcmake [SELECTION] [OPTIONS]```
+
+Wird tcmake ohne argumente aufgerufen, werden die verfügbaren Selections angezeigt.
+Wenn SELECTION angegeben ist, wird das entsprechende makefile erzeugt.
+Die einzige verfügbare Option ist "debug".
+
+Beispiel: ```tcmake mylib debug```  
+Oder einfach: ```tcmake mylib```
