@@ -33,8 +33,8 @@ link extern-library2
 
 ```tcmake [SELECTION] [OPTIONS]```
 
-Wird tcmake ohne argumente aufgerufen, werden die verfügbaren Selections angezeigt.
-Wenn SELECTION angegeben ist, wird das entsprechende makefile erzeugt.
+Wird tcmake ohne argumente aufgerufen, werden die verfügbaren Selections angezeigt.  
+Wenn SELECTION angegeben ist, wird das entsprechende makefile erzeugt.  
 Die einzige verfügbare Option ist "debug".
 
 Beispiel: ```tcmake mylib debug```  
