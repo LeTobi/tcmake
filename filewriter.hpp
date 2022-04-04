@@ -42,6 +42,7 @@ bool lib_contains_comp(const Outputs::Lib& lib, std::string key) {
 
 void writeMakeFile(Structure& structure, MakeOptions options) {
     Outputs& outputs = *options.outputs;
+    std::set<tobilib::StringPlus> directories;
 
     // Öffnen
     std::fstream fs ("build/makefile",std::fstream::out);
@@ -60,12 +61,14 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
     for (auto& comp: structure.components) {
         if (!comp.second.has_header)
             continue;
-        fs << comp.second.out_h << ": " << fromSource(comp.second.source_h) << std::endl;
+        fs << comp.second.out_h << ": " << fromSource(comp.second.source_h);
         tobilib::FileName mkpath;
         for (auto& dir: comp.second.out_h.path) {
             mkpath.path.push_back(dir);
-            fs << "\tmkdir -p " << mkpath << std::endl;
+            fs << " " << mkpath;
+            directories.insert(mkpath.directory());
         }
+        fs << std::endl;
         fs << "\tcp " << fromSource(comp.second.source_h) << " " << comp.second.out_h << std::endl;
     }
 
@@ -83,8 +86,8 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
         for (auto& dep: dependencies) {
             fs << fromSource(dep->source_h) << " ";
         }
-        fs << std::endl;
-        fs << "\tmkdir -p bin" << std::endl;
+        fs << " bin/" << std::endl;
+        directories.insert(tobilib::StringPlus("bin/"));
         fs << "\t" << options.gcc() << " -std=c++11 -c "
             << fromSource(comp.second.source_cpp)
             << " -o " << options.objname(comp.second.out_o)
@@ -128,6 +131,14 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
         for (auto& link: exe.links)
             fs << " -l" << link;
         fs << std::endl;
+    }
+
+    // dateisystem
+    for (auto& dir: directories)
+    {
+        fs << std::endl;
+        fs << dir << ":" << std::endl;
+        fs << "\tmkdir " << dir;
     }
 
     fs.close();
