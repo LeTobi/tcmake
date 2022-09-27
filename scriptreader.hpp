@@ -12,6 +12,7 @@ struct Outputs {
     struct Lib {
         tobilib::FileName output;
         std::vector<tobilib::FileName> paths;
+        
     };
     struct Exe {
         tobilib::FileName output;
@@ -21,6 +22,7 @@ struct Outputs {
 
     std::vector<Lib> libs;
     std::vector<Exe> exes;
+    std::vector<std::string> extern_include_paths;
 };
 
 typedef std::vector<Outputs> Selection;
@@ -71,6 +73,14 @@ bool getInstructions(Selection& selection) {
             if (selection.back().exes.empty())
                 throw std::string("Ein link konnte nicht zugeordnet werden. (exe fehlt)");
             selection.back().exes.back().links.push_back(link);
+        }
+        else if (instruction=="include")
+        {
+            std::string path;
+            file >> path;
+            if (!selection.back().exes.empty() || !selection.back().libs.empty())
+                throw std::string("die 'include' Anweisung gehoert zur selection und muss vor 'exe' und 'lib' stehen.");
+            selection.back().extern_include_paths.push_back(path);
         }
         else
         {

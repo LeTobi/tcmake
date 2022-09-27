@@ -52,6 +52,25 @@
         "random": "cpp",
         "ratio": "cpp",
         "sstream": "cpp",
-        "xfunctional": "cpp"
+        "xfunctional": "cpp",
+        "array": "cpp",
+        "atomic": "cpp",
+        "bit": "cpp",
+        "*.tcc": "cpp",
+        "cinttypes": "cpp",
+        "clocale": "cpp",
+        "compare": "cpp",
+        "complex": "cpp",
+        "concepts": "cpp",
+        "csignal": "cpp",
+        "cstdarg": "cpp",
+        "cwctype": "cpp",
+        "unordered_map": "cpp",
+        "iterator": "cpp",
+        "memory_resource": "cpp",
+        "numeric": "cpp",
+        "optional": "cpp",
+        "string_view": "cpp",
+        "ranges": "cpp"
     }
 }

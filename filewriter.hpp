@@ -88,8 +88,10 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
         }
         fs << " bin/" << std::endl;
         directories.insert(tobilib::StringPlus("bin/"));
-        fs << "\t" << options.gcc() << " -std=c++11 -c "
-            << fromSource(comp.second.source_cpp)
+        fs << "\t" << options.gcc() << " -std=c++11 -c ";
+        for (auto& ipath: outputs.extern_include_paths)
+            fs << "-I" << ipath << " ";
+        fs << fromSource(comp.second.source_cpp)
             << " -o " << options.objname(comp.second.out_o)
             << std::endl;
     }
