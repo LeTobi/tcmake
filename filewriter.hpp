@@ -10,6 +10,7 @@ struct MakeOptions
 {
     Outputs* outputs = nullptr;
     bool debug = false;
+    std::string cpp_std = "c++17";
 
     std::string gcc() {
         if (debug)
@@ -88,7 +89,7 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
         }
         fs << " bin/" << std::endl;
         directories.insert(tobilib::StringPlus("bin/"));
-        fs << "\t" << options.gcc() << " -std=c++11 -c ";
+        fs << "\t" << options.gcc() << " -std=" << options.cpp_std << " -c ";
         for (auto& ipath: outputs.extern_include_paths)
             fs << "-I" << ipath << " ";
         fs << fromSource(comp.second.source_cpp)
@@ -126,7 +127,7 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
             if (dep->has_lib)
                 fs << " " << options.objname(dep->out_o);
         fs << std::endl;
-        fs << "\t" << options.gcc() << " -std=c++11 -o " << exe.output << " " << options.objname(comp.out_o);
+        fs << "\t" << options.gcc() << " -std=" << options.cpp_std << " -o " << exe.output << " " << options.objname(comp.out_o);
         for (auto& dep: dependencies)
             if (dep->has_lib)
                 fs << " " << options.objname(dep->out_o);
