@@ -128,6 +128,8 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
                 fs << " " << options.objname(dep->out_o);
         fs << std::endl;
         fs << "\t" << options.gcc() << " -std=" << options.cpp_std << " -o " << exe.output << " " << options.objname(comp.out_o);
+        for (auto& path: outputs.extern_lib_paths)
+            fs << " -L " << path;
         for (auto& dep: dependencies)
             if (dep->has_lib)
                 fs << " " << options.objname(dep->out_o);

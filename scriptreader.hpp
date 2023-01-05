@@ -23,6 +23,7 @@ struct Outputs {
     std::vector<Lib> libs;
     std::vector<Exe> exes;
     std::vector<std::string> extern_include_paths;
+    std::vector<std::string> extern_lib_paths;
 };
 
 typedef std::vector<Outputs> Selection;
@@ -81,6 +82,14 @@ bool getInstructions(Selection& selection) {
             if (!selection.back().exes.empty() || !selection.back().libs.empty())
                 throw std::string("die 'include' Anweisung gehoert zur selection und muss vor 'exe' und 'lib' stehen.");
             selection.back().extern_include_paths.push_back(path);
+        }
+        else if (instruction=="libpath")
+        {
+            std::string path;
+            file >> path;
+            if (!selection.back().exes.empty() || !selection.back().libs.empty())
+                throw std::string("die 'libpath' Anweisung gehoert zur selection und muss vor 'exe' und 'lib' stehen.");
+            selection.back().extern_lib_paths.push_back(path);
         }
         else
         {
