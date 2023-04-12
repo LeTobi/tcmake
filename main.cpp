@@ -35,16 +35,16 @@ MakeOptions configureOutput(int argc, const char** args, Selection& selection) {
 
 void generateOutput(int argc, const char** args, Selection& selection)
 {
+	MakeOptions options = configureOutput(argc,args,selection);
     Structure project;
-    project.fill();
-
-    MakeOptions out = configureOutput(argc,args,selection);
-    writeMakeFile(project,out);
+    
+    project.fill(options.outputs);
+    writeMakeFile(project,options);
 
     std::cout << "Makefile erstellt mit:" << std::endl;
-    for (auto& exe: out.outputs->exes)
+    for (auto& exe: options.outputs->exes)
         std::cout << "  " << exe.output << std::endl;
-    for (auto& lib: out.outputs->libs)
+    for (auto& lib: options.outputs->libs)
         std::cout << "  " << lib.output << std::endl;
 }
 

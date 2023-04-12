@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include "scriptreader.hpp"
 
 // Component definiert eine Programmkomponente bestehend aus
 // Source-File, Header-File und (zu generieren) Object-File
@@ -49,9 +50,11 @@ public:
     std::vector<tobilib::FileName> directories;
 
     // Sucht Komponenten im Dateisystem
-    void fill();
+    void fill(Outputs*);
 
 private:
+	Outputs* fill_options = nullptr;
+
     // add_directory: durchsucht ordner rekursiv
     void add_directory(tobilib::StringPlus,bool* out_hasheader=nullptr);
     // get dependencies: Sucht die Abhängigkeiten im File-Code
@@ -88,7 +91,8 @@ void Component::recursive_gather(std::set<Component*>& output, bool include_priv
     }
 }
 
-void Structure::fill() {
+void Structure::fill(Outputs* options) {
+	fill_options = options;
     add_directory("./");
     for (auto& item: components)
         get_dependencies(item.second);
@@ -98,16 +102,17 @@ tobilib::StringPlus Structure::keyof(const tobilib::FileName& file) {
     return file.directory()+file.name;
 }
 
+// @param path: pfad, der hinzugefügt werden soll. Ordner müssen '/' am ende enthalten. Dateien werden ignoriert.
 // @param out_hasheader: wird auf true gesetzt falls headerfile enthalten. sonst unverändert.
 void Structure::add_directory(tobilib::StringPlus path, bool* out_hasheader) {
-    // ignore build path
-    if (tobilib::FileName(path)=="build/")
-        return;
+    // ignore paths
+    if (fill_options->ignore_paths.count(path.toString())>0)
+		return;
 
     // Open directory and iterate through elements
     DIR* dir = opendir(path.toString().c_str());
     bool hasheader = false;
-    if (dir==NULL)
+    if (dir==NULL) // it was a file
         return;
     for (dirent* entry=readdir(dir);entry!=NULL;entry=readdir(dir)) {
         tobilib::StringPlus fstring = entry->d_name;

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <set>
 
 struct Outputs {
     std::string name;
@@ -22,6 +23,7 @@ struct Outputs {
 
     std::vector<Lib> libs;
     std::vector<Exe> exes;
+    std::set<std::string> ignore_paths;
     std::vector<std::string> extern_include_paths;
     std::vector<std::string> extern_lib_paths;
 };
@@ -42,11 +44,24 @@ bool getInstructions(Selection& selection) {
         if (instruction=="selection")
         {
             selection.emplace_back();
+            selection.back().ignore_paths.insert("./build/");
             file >> selection.back().name;
         }
         else if (selection.empty()) {
             throw std::string("Eine selektion wurde nicht benannt");
         }
+        else if (instruction=="ignore")
+        {
+			if (!selection.back().libs.empty() || !selection.back().exes.empty())
+				throw std::string("die 'ignore' anweisung sollte in der selection vor exe und lib stehen");
+			tobilib::StringPlus path;
+			file >> path;
+			if (!path.beginsWith("./"))
+				path = tobilib::StringPlus("./")+path;
+			if (!path.endsWith("/"))
+				path += "/";
+			selection.back().ignore_paths.insert(path);
+		}
         else if (instruction=="lib")
         {
             Outputs::Lib lib;
