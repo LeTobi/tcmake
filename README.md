@@ -40,6 +40,10 @@ selection mylib
 
 * ```link```: definiert zusätzliche Abhängigkeiten der Anwendung
 
+* ```include```: Gibt dem Compiler eienen zusätzlichen Include path
+
+* ```libpath```: Gibt dem Compiler einen zusätzlichen Library path
+
 ## Anwendung
 
 ```tcmake [SELECTION] [OPTIONS]```
