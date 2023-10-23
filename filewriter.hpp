@@ -63,6 +63,7 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
         if (!comp.second.has_header)
             continue;
         fs << comp.second.out_h << ": " << fromSource(comp.second.source_h);
+        fs << " |";
         tobilib::FileName mkpath;
         for (auto& dir: comp.second.out_h.path) {
             mkpath.path.push_back(dir);
@@ -87,7 +88,7 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
         for (auto& dep: dependencies) {
             fs << fromSource(dep->source_h) << " ";
         }
-        fs << " bin/" << std::endl;
+        fs << " | bin/" << std::endl;
         directories.insert(tobilib::StringPlus("bin/"));
         fs << "\t" << options.gcc() << " -std=" << options.cpp_std << " -c ";
         for (auto& ipath: outputs.extern_include_paths)
