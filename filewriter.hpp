@@ -86,7 +86,10 @@ void writeMakeFile(Structure& structure, MakeOptions options) {
         std::set<Component*> dependencies;
         comp.second.get_compile_dependencies(dependencies);
         for (auto& dep: dependencies) {
-            fs << fromSource(dep->source_h) << " ";
+            if (dep->has_header)
+                fs << fromSource(dep->source_h) << " ";
+            else if (dep->has_code)
+                fs << fromSource(dep->source_cpp) << " ";
         }
         fs << " | bin/" << std::endl;
         directories.insert(tobilib::StringPlus("bin/"));
